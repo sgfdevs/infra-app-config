@@ -1,0 +1,39 @@
+name: Terraform
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/tf/**
+      - .github/workflows/tf-plan-apply.yml
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Plan only or plan + apply"
+        required: true
+        type: choice
+        options:
+          - plan
+          - plan-apply
+        default: plan
+      target-list:
+        description: "Optional targets, comma-separated"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+jobs:
+  plan-apply:
+    uses: glitchedmob/infra-gha/.github/workflows/tf-plan-apply.yml@v0.7.4
+    with:
+      plan-only: ${{ github.event_name == 'workflow_dispatch' && inputs.mode != 'plan-apply' }}
+      target-list: ${{ inputs.target-list }}
+    secrets:
+      envrc_content: |
+        export TF_VAR_openbao_token="${{ secrets.TF_VAR_openbao_token }}"
+      aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
+      output_encryption_key: ${{ secrets.OUTPUT_ENCRYPTION_KEY }}

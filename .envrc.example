@@ -1,0 +1,2 @@
+export AWS_DEFAULT_PROFILE="your-aws-profile-name"
+export TF_VAR_openbao_token="your-openbao-token"

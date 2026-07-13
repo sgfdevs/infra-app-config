@@ -1,0 +1,10 @@
+# Environment files
+.envrc
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.tfstate
+.tfplan
+*.log
+src/tf/.terraform/
