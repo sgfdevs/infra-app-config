@@ -36,7 +36,7 @@ resource "vault_kv_secret_v2" "hack4goodsgf_staging_ses" {
   data_json_wo_version = 1
 }
 
-resource "random_password" "hack4goodsgf_staging_wordpress_admin" {
+ephemeral "random_password" "hack4goodsgf_staging_wordpress_admin" {
   length  = 32
   special = true
 }
@@ -47,8 +47,8 @@ resource "vault_kv_secret_v2" "hack4goodsgf_staging_wordpress_admin" {
   disable_read = true
   data_json_wo = jsonencode({
     username = "hack4good-admin"
-    password = random_password.hack4goodsgf_staging_wordpress_admin.result
-    email    = "hack4good-staging@sgf.dev"
+    password = ephemeral.random_password.hack4goodsgf_staging_wordpress_admin.result
+    email    = "hostmaster@sgf.dev"
   })
   data_json_wo_version = 1
 }
