@@ -1,22 +1,22 @@
 resource "vault_policy" "sgf_dev_staging" {
   name   = "sgf-dev-staging"
   policy = <<-EOT
-    path "${vault_mount.applications.path}/data/sgf-dev/staging/application" {
+    path "${var.applications_mount_path}/data/sgf-dev/staging/application" {
       capabilities = ["read"]
     }
 
-    path "${vault_mount.applications.path}/data/sgf-dev/staging/ses" {
+    path "${var.applications_mount_path}/data/sgf-dev/staging/ses" {
       capabilities = ["read"]
     }
 
-    path "${vault_mount.applications.path}/data/sgf-dev/staging/backup" {
+    path "${var.applications_mount_path}/data/sgf-dev/staging/backup" {
       capabilities = ["read"]
     }
   EOT
 }
 
 resource "vault_kv_secret_v2" "sgf_dev_staging_application" {
-  mount        = vault_mount.applications.path
+  mount        = var.applications_mount_path
   name         = "sgf-dev/staging/application"
   disable_read = true
   data_json_wo = jsonencode({
@@ -24,7 +24,7 @@ resource "vault_kv_secret_v2" "sgf_dev_staging_application" {
     meetupApiClientSecret = "CHANGEME"
     sentryDsn             = "CHANGEME"
   })
-  data_json_wo_version = 1
+  data_json_wo_version = local.application_secret_versions.sgf_dev_staging_application
 }
 
 ephemeral "random_password" "sgf_dev_staging_restic" {
@@ -33,17 +33,17 @@ ephemeral "random_password" "sgf_dev_staging_restic" {
 }
 
 resource "vault_kv_secret_v2" "sgf_dev_staging_backup" {
-  mount        = vault_mount.applications.path
+  mount        = var.applications_mount_path
   name         = "sgf-dev/staging/backup"
   disable_read = true
   data_json_wo = jsonencode({
     resticPassword = ephemeral.random_password.sgf_dev_staging_restic.result
   })
-  data_json_wo_version = 1
+  data_json_wo_version = local.application_secret_versions.sgf_dev_staging_backup
 }
 
 resource "vault_kubernetes_auth_backend_role" "sgf_dev_staging" {
-  backend                          = vault_auth_backend.kubernetes.path
+  backend                          = var.kubernetes_auth_backend_path
   role_name                        = "sgf-dev-staging"
   bound_service_account_names      = ["sgf-dev-secrets"]
   bound_service_account_namespaces = ["sgf-dev-staging"]

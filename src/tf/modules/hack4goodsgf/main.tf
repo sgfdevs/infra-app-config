@@ -1,6 +1,9 @@
 locals {
   hack4goodsgf_staging_ses_from_address = "hack4good-staging@sgf.dev"
+  sgf_dev_ses_policy_arn                = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/applications/sgf-dev/SgfDevSESSender"
 }
+
+data "aws_caller_identity" "current" {}
 
 resource "aws_iam_user" "hack4goodsgf_staging_ses" {
   name = "hack4goodsgf-staging-ses-smtp"
@@ -26,14 +29,14 @@ resource "aws_iam_access_key" "hack4goodsgf_staging_ses" {
 }
 
 resource "vault_kv_secret_v2" "hack4goodsgf_staging_ses" {
-  mount        = vault_mount.applications.path
+  mount        = var.applications_mount_path
   name         = "hack4goodsgf/staging/ses"
   disable_read = true
   data_json_wo = jsonencode({
     username = aws_iam_access_key.hack4goodsgf_staging_ses.id
     password = aws_iam_access_key.hack4goodsgf_staging_ses.ses_smtp_password_v4
   })
-  data_json_wo_version = 1
+  data_json_wo_version = local.application_secret_versions.hack4goodsgf_staging_ses
 }
 
 ephemeral "random_password" "hack4goodsgf_staging_wordpress_admin" {
@@ -42,7 +45,7 @@ ephemeral "random_password" "hack4goodsgf_staging_wordpress_admin" {
 }
 
 resource "vault_kv_secret_v2" "hack4goodsgf_staging_wordpress_admin" {
-  mount        = vault_mount.applications.path
+  mount        = var.applications_mount_path
   name         = "hack4goodsgf/staging/wordpress-admin"
   disable_read = true
   data_json_wo = jsonencode({
@@ -50,24 +53,24 @@ resource "vault_kv_secret_v2" "hack4goodsgf_staging_wordpress_admin" {
     password = ephemeral.random_password.hack4goodsgf_staging_wordpress_admin.result
     email    = "hostmaster@sgf.dev"
   })
-  data_json_wo_version = 1
+  data_json_wo_version = local.application_secret_versions.hack4goodsgf_staging_wordpress_admin
 }
 
 resource "vault_policy" "hack4goodsgf_staging" {
   name   = "hack4goodsgf-staging"
   policy = <<-EOT
-    path "${vault_mount.applications.path}/data/hack4goodsgf/staging/ses" {
+    path "${var.applications_mount_path}/data/hack4goodsgf/staging/ses" {
       capabilities = ["read"]
     }
 
-    path "${vault_mount.applications.path}/data/hack4goodsgf/staging/wordpress-admin" {
+    path "${var.applications_mount_path}/data/hack4goodsgf/staging/wordpress-admin" {
       capabilities = ["read"]
     }
   EOT
 }
 
 resource "vault_kubernetes_auth_backend_role" "hack4goodsgf_staging" {
-  backend                          = vault_auth_backend.kubernetes.path
+  backend                          = var.kubernetes_auth_backend_path
   role_name                        = "hack4goodsgf-staging"
   bound_service_account_names      = ["hack4goodsgf-secrets"]
   bound_service_account_namespaces = ["hack4goodsgf-com-staging"]

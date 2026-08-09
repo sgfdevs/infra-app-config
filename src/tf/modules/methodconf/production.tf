@@ -1,28 +1,28 @@
 resource "vault_policy" "methodconf_production" {
   name   = "methodconf-production"
   policy = <<-EOT
-    path "${vault_mount.applications.path}/data/methodconf/production/application" {
+    path "${var.applications_mount_path}/data/methodconf/production/application" {
       capabilities = ["read"]
     }
 
-    path "${vault_mount.applications.path}/data/methodconf/production/ses" {
+    path "${var.applications_mount_path}/data/methodconf/production/ses" {
       capabilities = ["read"]
     }
 
-    path "${vault_mount.applications.path}/data/methodconf/production/backup" {
+    path "${var.applications_mount_path}/data/methodconf/production/backup" {
       capabilities = ["read"]
     }
   EOT
 }
 
 resource "vault_kv_secret_v2" "methodconf_production_application" {
-  mount        = vault_mount.applications.path
+  mount        = var.applications_mount_path
   name         = "methodconf/production/application"
   disable_read = true
   data_json_wo = jsonencode({
     newsletterListId = "CHANGEME"
   })
-  data_json_wo_version = 1
+  data_json_wo_version = local.application_secret_versions.methodconf_production_application
 }
 
 ephemeral "random_password" "methodconf_production_restic" {
@@ -31,17 +31,17 @@ ephemeral "random_password" "methodconf_production_restic" {
 }
 
 resource "vault_kv_secret_v2" "methodconf_production_backup" {
-  mount        = vault_mount.applications.path
+  mount        = var.applications_mount_path
   name         = "methodconf/production/backup"
   disable_read = true
   data_json_wo = jsonencode({
     resticPassword = ephemeral.random_password.methodconf_production_restic.result
   })
-  data_json_wo_version = 1
+  data_json_wo_version = local.application_secret_versions.methodconf_production_backup
 }
 
 resource "vault_kubernetes_auth_backend_role" "methodconf_production" {
-  backend                          = vault_auth_backend.kubernetes.path
+  backend                          = var.kubernetes_auth_backend_path
   role_name                        = "methodconf-production"
   bound_service_account_names      = ["methodconf-secrets"]
   bound_service_account_namespaces = ["methodconf-com-production"]

@@ -5,35 +5,6 @@ ephemeral "aws_ssm_parameter" "dex_openbao_client_secret" {
   arn = "arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter/vm-workloads/sgfdevs/infra-vm-workloads/dex-openbao-client-secret"
 }
 
-resource "vault_policy" "application_secrets_admin" {
-  name   = "application-secrets-admin"
-  policy = <<-EOT
-    path "${vault_mount.applications.path}/data/*" {
-      capabilities = ["create", "read", "update", "delete", "patch"]
-    }
-
-    path "${vault_mount.applications.path}/metadata" {
-      capabilities = ["list"]
-    }
-
-    path "${vault_mount.applications.path}/metadata/*" {
-      capabilities = ["create", "read", "update", "delete", "list"]
-    }
-
-    path "${vault_mount.applications.path}/delete/*" {
-      capabilities = ["update"]
-    }
-
-    path "${vault_mount.applications.path}/undelete/*" {
-      capabilities = ["update"]
-    }
-
-    path "${vault_mount.applications.path}/destroy/*" {
-      capabilities = ["update"]
-    }
-  EOT
-}
-
 resource "vault_jwt_auth_backend" "oidc" {
   description                   = "OIDC auth via SGF Devs Dex (dex.sgf.dev)"
   path                          = "oidc"
