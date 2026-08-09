@@ -1,8 +1,8 @@
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
-ephemeral "aws_ssm_parameter" "dex_client_secrets" {
-  arn = "arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter/vm-workloads/sgfdevs/infra-vm-workloads/dex-client-secrets"
+ephemeral "aws_ssm_parameter" "dex_openbao_client_secret" {
+  arn = "arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter/vm-workloads/sgfdevs/infra-vm-workloads/dex-openbao-client-secret"
 }
 
 resource "vault_policy" "application_secrets_admin" {
@@ -40,7 +40,7 @@ resource "vault_jwt_auth_backend" "oidc" {
   type                          = "oidc"
   oidc_discovery_url            = "https://dex.sgf.dev"
   oidc_client_id                = "openbao"
-  oidc_client_secret_wo         = jsondecode(ephemeral.aws_ssm_parameter.dex_client_secrets.value).openbaoClientSecret
+  oidc_client_secret_wo         = ephemeral.aws_ssm_parameter.dex_openbao_client_secret.value
   oidc_client_secret_wo_version = 1
   default_role                  = "admin"
   bound_issuer                  = "https://dex.sgf.dev"
