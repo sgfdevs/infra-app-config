@@ -8,6 +8,10 @@ resource "vault_policy" "methodconf_staging" {
     path "${vault_mount.applications.path}/data/methodconf/staging/ses" {
       capabilities = ["read"]
     }
+
+    path "${vault_mount.applications.path}/data/methodconf/staging/backup" {
+      capabilities = ["read"]
+    }
   EOT
 }
 
@@ -17,6 +21,21 @@ resource "vault_kv_secret_v2" "methodconf_staging_application" {
   disable_read = true
   data_json_wo = jsonencode({
     newsletterListId = "CHANGEME"
+  })
+  data_json_wo_version = 1
+}
+
+ephemeral "random_password" "methodconf_staging_restic" {
+  length  = 40
+  special = false
+}
+
+resource "vault_kv_secret_v2" "methodconf_staging_backup" {
+  mount        = vault_mount.applications.path
+  name         = "methodconf/staging/backup"
+  disable_read = true
+  data_json_wo = jsonencode({
+    resticPassword = ephemeral.random_password.methodconf_staging_restic.result
   })
   data_json_wo_version = 1
 }
