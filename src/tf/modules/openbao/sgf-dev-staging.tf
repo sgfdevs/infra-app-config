@@ -8,6 +8,10 @@ resource "vault_policy" "sgf_dev_staging" {
     path "${vault_mount.applications.path}/data/sgf-dev/staging/ses" {
       capabilities = ["read"]
     }
+
+    path "${vault_mount.applications.path}/data/sgf-dev/staging/backup" {
+      capabilities = ["read"]
+    }
   EOT
 }
 
@@ -19,6 +23,21 @@ resource "vault_kv_secret_v2" "sgf_dev_staging_application" {
     azureBlobStorageKey   = "CHANGEME"
     meetupApiClientSecret = "CHANGEME"
     sentryDsn             = "CHANGEME"
+  })
+  data_json_wo_version = 1
+}
+
+ephemeral "random_password" "sgf_dev_staging_restic" {
+  length  = 40
+  special = false
+}
+
+resource "vault_kv_secret_v2" "sgf_dev_staging_backup" {
+  mount        = vault_mount.applications.path
+  name         = "sgf-dev/staging/backup"
+  disable_read = true
+  data_json_wo = jsonencode({
+    resticPassword = ephemeral.random_password.sgf_dev_staging_restic.result
   })
   data_json_wo_version = 1
 }
