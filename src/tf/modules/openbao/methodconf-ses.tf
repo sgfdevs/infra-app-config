@@ -3,27 +3,7 @@ locals {
     production = "website@methodconf.com"
     staging    = "website-staging@methodconf.com"
   }
-}
-
-resource "aws_iam_policy" "methodconf_ses_sender" {
-  name = "MethodConfSESSender"
-  path = "/applications/methodconf/"
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Action = [
-        "ses:SendEmail",
-        "ses:SendRawEmail",
-      ]
-      Resource = "*"
-      Condition = {
-        StringEquals = {
-          "ses:FromAddress" = values(local.methodconf_ses_senders)
-        }
-      }
-    }]
-  })
+  methodconf_ses_policy_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/applications/methodconf/MethodConfSESSender"
 }
 
 resource "aws_iam_user" "methodconf_ses" {
@@ -44,7 +24,7 @@ resource "aws_iam_user_policy_attachment" "methodconf_ses" {
   for_each = local.methodconf_ses_senders
 
   user       = aws_iam_user.methodconf_ses[each.key].name
-  policy_arn = aws_iam_policy.methodconf_ses_sender.arn
+  policy_arn = local.methodconf_ses_policy_arn
 }
 
 resource "aws_iam_access_key" "methodconf_ses" {
