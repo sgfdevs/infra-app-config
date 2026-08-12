@@ -23,7 +23,7 @@ resource "vault_jwt_auth_backend_role" "admin" {
   role_type  = "oidc"
   user_claim = "email"
   bound_claims = {
-    groups = "sgfdevs:platform-admins"
+    groups = "sgfdevs:infra-platform-admins,sgfdevs:infra-maintainers"
   }
   token_policies = ["default", vault_policy.application_secrets_admin.name]
   oidc_scopes    = ["openid", "profile", "email", "groups"]

@@ -5,7 +5,7 @@ Manages post-bootstrap configuration for SGF Devs applications.
 ## Scope
 
 - Configures OpenBao OIDC authentication through Dex.
-- Grants `sgfdevs:platform-admins` access to OpenBao.
+- Grants `sgfdevs:infra-platform-admins` and `sgfdevs:infra-maintainers` access to OpenBao.
 - Manages the shared `applications` KV v2 secrets mount and application access policies.
 - Configures Kubernetes authentication roles for application secrets and K8up raft snapshot backups.
 - Manages application-specific secrets and access configuration.
