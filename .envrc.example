@@ -1,2 +1,4 @@
 export AWS_DEFAULT_PROFILE="your-aws-profile-name"
+export TF_VAR_sgfdevs_aws_account_id="your-sgfdevs-aws-account-id"
+export TF_VAR_opensgf_aws_account_id="your-opensgf-aws-account-id"
 export TF_VAR_openbao_token="your-openbao-token"

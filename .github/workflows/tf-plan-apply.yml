@@ -34,6 +34,8 @@ jobs:
       target-list: ${{ inputs.target-list }}
     secrets:
       envrc_content: |
+        export TF_VAR_sgfdevs_aws_account_id="${{ vars.SGFDEVS_AWS_ACCOUNT_ID }}"
+        export TF_VAR_opensgf_aws_account_id="${{ vars.OPENSGF_AWS_ACCOUNT_ID }}"
         export TF_VAR_openbao_token="${{ secrets.TF_VAR_openbao_token }}"
       aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
       output_encryption_key: ${{ secrets.OUTPUT_ENCRYPTION_KEY }}

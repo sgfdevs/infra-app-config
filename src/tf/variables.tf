@@ -4,6 +4,16 @@ variable "aws_region" {
   default     = "us-east-2"
 }
 
+variable "sgfdevs_aws_account_id" {
+  description = "AWS account ID for SGF Devs resources"
+  type        = string
+}
+
+variable "opensgf_aws_account_id" {
+  description = "AWS account ID for OpenSGF resources"
+  type        = string
+}
+
 variable "openbao_host" {
   description = "OpenBao API hostname"
   type        = string

@@ -34,6 +34,11 @@ make tf-apply
 make tf-output
 ```
 
+## GitHub Actions Variables
+
+- `SGFDEVS_AWS_ACCOUNT_ID`: AWS account ID for SGF Devs resources.
+- `OPENSGF_AWS_ACCOUNT_ID`: AWS account ID for OpenSGF resources.
+
 ## GitHub Actions Secrets
 
 - `AWS_ROLE_ARN`: SGF Devs GitHub Actions Terraform role ARN.
