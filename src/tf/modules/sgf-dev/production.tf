@@ -52,3 +52,22 @@ resource "vault_kubernetes_auth_backend_role" "sgf_dev_production" {
   token_ttl                        = 900
   token_max_ttl                    = 900
 }
+resource "vault_policy" "good_dads_production" {
+  name   = "good-dads-production"
+  policy = <<-EOT
+    path "${var.applications_mount_path}/data/good-dads/production/ses" {
+      capabilities = ["read"]
+    }
+  EOT
+}
+
+resource "vault_kubernetes_auth_backend_role" "good_dads_production" {
+  backend                          = var.kubernetes_auth_backend_path
+  role_name                        = "good-dads-production"
+  bound_service_account_names      = ["good-dads-secrets"]
+  bound_service_account_namespaces = ["good-dads-production"]
+  audience                         = "vault"
+  token_policies                   = [vault_policy.good_dads_production.name]
+  token_ttl                        = 900
+  token_max_ttl                    = 900
+}
