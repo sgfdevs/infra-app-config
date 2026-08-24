@@ -10,7 +10,7 @@ resource "aws_iam_user" "ses" {
   path = "/applications/sgf-dev/"
 
   tags = {
-    Application    = "sgf.dev"
+    Application    = "zitadel"
     Environment    = "production"
     ManagedBy      = "OpenTofu"
     SESFromAddress = local.ses_from_address
