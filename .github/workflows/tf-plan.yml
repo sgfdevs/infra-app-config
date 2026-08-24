@@ -42,6 +42,7 @@ jobs:
     secrets:
       envrc_content: |
         export TF_VAR_openbao_token="${{ secrets.TF_VAR_openbao_token }}"
+        export TF_VAR_zitadel_jwt_profile_json='${{ secrets.TF_VAR_zitadel_jwt_profile_json }}'
       aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
       output_encryption_key: ${{ secrets.OUTPUT_ENCRYPTION_KEY }}
 
