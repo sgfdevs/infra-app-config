@@ -1,30 +1,18 @@
 # infra-app-config
 
-Manages post-bootstrap configuration for SGF Devs applications.
+Manages post-bootstrap configuration for SGF Devs applications and shared services.
 
 ## Scope
-
-- Configures OpenBao OIDC authentication through Dex.
-- Grants `sgfdevs:infra-platform-admins` and `sgfdevs:infra-maintainers` access to OpenBao.
-- Manages the shared `applications` KV v2 secrets mount and application access policies.
-- Configures Kubernetes authentication roles for application secrets and K8up raft snapshot backups.
-- Manages application-specific secrets and access configuration.
-- Creates SES SMTP users and stores their generated credentials in OpenBao.
-- Reads the generated OpenBao Dex client secret from AWS SSM Parameter Store.
+- Owns: configuration applied after application and platform services are deployed.
+- Owns: identity, access, integrations, generated credentials, and provider-managed application settings declared in this stack.
+- Does not own: foundational infrastructure, DNS, cluster bootstrap, or application deployment.
 
 ## Structure
-
 - `src/tf/`: Root OpenTofu stack and provider configuration.
-- `src/tf/modules/openbao/`: Shared application mount, OIDC, Kubernetes auth, and raft backup configuration.
-- `src/tf/modules/<application>/`: Application-owned secrets, policies, Kubernetes roles, and supporting resources.
+- `src/tf/modules/<service>/`: Configuration grouped by application or shared service.
 - `.github/workflows/`: Plan, validation, and apply automation.
 
-Secret payloads are write-only. Each application module owns its secret rotation versions in `locals.tf`. Increment a version only when intentionally rotating or replacing that secret payload.
-
 ## Run
-
-OpenBao must be initialized, unsealed, and reachable at `https://secrets.sgf.dev`. This stack does not require Headscale connectivity. Set `TF_VAR_openbao_token` to a token authorized to manage the configured resources.
-
 ```bash
 cp .envrc.example .envrc
 make help
@@ -34,9 +22,8 @@ make tf-apply
 make tf-output
 ```
 
-## GitHub Actions Secrets
-
-- `AWS_ROLE_ARN`: SGF Devs GitHub Actions Terraform role ARN.
-- `OUTPUT_ENCRYPTION_KEY`: Encryption key used by the reusable plan workflow.
-- `TF_VAR_openbao_token`: OpenBao token authorized to manage auth backends, policies, and roles.
-- `TF_VAR_zitadel_jwt_profile_json`: ZITADEL machine user JWT profile authorized to manage instance email providers.
+## Operating constraints
+- Apply only after the services configured by this stack are initialized and reachable.
+- Use `.envrc.example` as the authoritative list of required local credentials. Never commit `.envrc` or secret payloads.
+- Secret payloads are write-only where supported. Change module-defined rotation versions only when intentionally replacing those values.
+- Treat plans and outputs as sensitive because they may contain application or credential metadata.
