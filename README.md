@@ -39,3 +39,4 @@ make tf-output
 - `AWS_ROLE_ARN`: SGF Devs GitHub Actions Terraform role ARN.
 - `OUTPUT_ENCRYPTION_KEY`: Encryption key used by the reusable plan workflow.
 - `TF_VAR_openbao_token`: OpenBao token authorized to manage auth backends, policies, and roles.
+- `TF_VAR_zitadel_jwt_profile_json`: ZITADEL machine user JWT profile authorized to manage instance email providers.
