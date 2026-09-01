@@ -7,7 +7,7 @@ locals {
   }
 
   # Set this to false after the first apply creates and stores the client secret.
-  bootstrap_oidc_client_secret = true
+  bootstrap_oidc_client_secret = false
   rotate_oidc_client_secret    = false
 }
 
