@@ -2,18 +2,12 @@ locals {
   application_url = "https://projects.sgf.dev"
 
   secret_versions = {
-    oidc    = 1
-    runtime = 1
+    oidc = 1
   }
 
   # Set this to false after the first apply creates and stores the client secret.
   bootstrap_oidc_client_secret = false
   rotate_oidc_client_secret    = false
-}
-
-ephemeral "random_password" "mongodb" {
-  length  = 48
-  special = false
 }
 
 data "zitadel_organizations" "default" {
@@ -106,14 +100,4 @@ resource "vault_kv_secret_v2" "oidc" {
     discoveryUrl = "https://${var.zitadel_domain}/.well-known/openid-configuration"
   })
   data_json_wo_version = local.secret_versions.oidc
-}
-
-resource "vault_kv_secret_v2" "runtime" {
-  mount        = var.applications_mount_path
-  name         = "wekan/runtime"
-  disable_read = true
-  data_json_wo = jsonencode({
-    mongodbPassword = ephemeral.random_password.mongodb.result
-  })
-  data_json_wo_version = local.secret_versions.runtime
 }
