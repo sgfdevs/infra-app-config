@@ -1,10 +1,14 @@
 locals {
   sgf_dev_ses_policy_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/applications/sgf-dev/SgfDevSESSender"
+
+  application_secret_versions = {
+    good_dads_enrollment_bot_staging_ses = 1
+  }
 }
 
 data "aws_caller_identity" "current" {}
 
-resource "aws_iam_user" "good_dads_staging_ses" {
+resource "aws_iam_user" "good_dads_enrollment_bot_staging_ses" {
   name = "good-dads-staging-ses-smtp"
   path = "/applications/good-dads-enrollment-bot/"
 
@@ -16,25 +20,25 @@ resource "aws_iam_user" "good_dads_staging_ses" {
   }
 }
 
-resource "aws_iam_user_policy_attachment" "good_dads_staging_ses" {
-  user       = aws_iam_user.good_dads_staging_ses.name
+resource "aws_iam_user_policy_attachment" "good_dads_enrollment_bot_staging_ses" {
+  user       = aws_iam_user.good_dads_enrollment_bot_staging_ses.name
   policy_arn = local.sgf_dev_ses_policy_arn
 }
 
-resource "aws_iam_access_key" "good_dads_staging_ses" {
-  user       = aws_iam_user.good_dads_staging_ses.name
-  depends_on = [aws_iam_user_policy_attachment.good_dads_staging_ses]
+resource "aws_iam_access_key" "good_dads_enrollment_bot_staging_ses" {
+  user       = aws_iam_user.good_dads_enrollment_bot_staging_ses.name
+  depends_on = [aws_iam_user_policy_attachment.good_dads_enrollment_bot_staging_ses]
 }
 
-resource "vault_kv_secret_v2" "good_dads_staging_ses" {
+resource "vault_kv_secret_v2" "good_dads_enrollment_bot_staging_ses" {
   mount        = var.applications_mount_path
   name         = "good-dads/staging/ses"
   disable_read = true
   data_json_wo = jsonencode({
-    username = aws_iam_access_key.good_dads_staging_ses.id
-    password = aws_iam_access_key.good_dads_staging_ses.ses_smtp_password_v4
+    username = aws_iam_access_key.good_dads_enrollment_bot_staging_ses.id
+    password = aws_iam_access_key.good_dads_enrollment_bot_staging_ses.ses_smtp_password_v4
   })
-  data_json_wo_version = local.application_secret_versions.good_dads_staging_ses
+  data_json_wo_version = local.application_secret_versions.good_dads_enrollment_bot_staging_ses
 }
 
 resource "vault_policy" "good_dads_staging" {
