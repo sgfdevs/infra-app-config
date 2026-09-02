@@ -5,6 +5,5 @@ locals {
     sgf_dev_ses                    = 1
     sgf_dev_staging_application    = 1
     sgf_dev_staging_backup         = 1
-    good_dads_production_ses       = 1
   }
 }
