@@ -40,6 +40,7 @@ resource "vault_kubernetes_auth_backend_role" "secrets" {
   role_name                        = "kaneo-secrets"
   bound_service_account_names      = ["kaneo-secrets"]
   bound_service_account_namespaces = ["kaneo"]
+  audience                         = "vault"
   token_policies                   = [vault_policy.secrets.name]
   token_no_default_policy          = true
   token_ttl                        = 900
