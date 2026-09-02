@@ -218,7 +218,7 @@ resource "aws_iam_role" "kaneo" {
   name                 = local.k3s_workload_role_name
   path                 = "/sgfdevs-k3s/"
   description          = "Allow Kaneo to manage objects in its private S3 bucket"
-  permissions_boundary = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/sgfdevs-k3s/SGFDevsK3sKubernetesWorkloadBoundary"
+  permissions_boundary = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/sgfdevs-k3s/SGFDevsK3sApplicationS3WorkloadBoundary"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
