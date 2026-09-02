@@ -23,7 +23,7 @@ module "hack4goodsgf" {
   kubernetes_auth_backend_path = module.openbao.kubernetes_auth_backend_path
 }
 
-module "good_dads_enrollbot" {
+module "gooddads_enrollment_bot" {
   source = "./modules/gooddads-enrollment-bot"
 
   applications_mount_path      = module.openbao.applications_mount_path
