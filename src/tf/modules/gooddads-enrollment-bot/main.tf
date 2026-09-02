@@ -12,7 +12,7 @@ resource "aws_iam_user" "good_dads_staging_ses" {
     Application    = "sgf.dev"
     Environment    = "staging"
     ManagedBy      = "OpenTofu"
-    SESFromAddress = "gooddays-enrolment@sgf.dev"
+    SESFromAddress = "staging-gooddads-enrollment-bot@sgf.dev"
   }
 }
 

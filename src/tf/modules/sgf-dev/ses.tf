@@ -51,13 +51,13 @@ resource "vault_kv_secret_v2" "sgf_dev_ses" {
 }
 resource "aws_iam_user" "good_dads_production_ses" {
   name = "good-dads-production-ses-smtp"
-  path = "/applications/good-dads/"
+  path = "/applications/gooddads-enrollment-bot/"
 
   tags = {
-    Application    = "sgf.dev"
-    Environment    = "production"
+    Application    = "gooddads-enrollment-bot"
+    Environment    = "Staging"
     ManagedBy      = "OpenTofu"
-    SESFromAddress = "gooddays-enrolment@sgf.dev"
+    SESFromAddress = "staging-gooddads-enrollment-bot@sgf.dev"
   }
 }
 
@@ -73,7 +73,7 @@ resource "aws_iam_access_key" "good_dads_production_ses" {
 
 resource "vault_kv_secret_v2" "good_dads_production_ses" {
   mount        = var.applications_mount_path
-  name         = "good-dads/production/ses"
+  name         = "gooddads-enrollment-bot/staging/ses"
   disable_read = true
   data_json_wo = jsonencode({
     username = aws_iam_access_key.good_dads_production_ses.id
