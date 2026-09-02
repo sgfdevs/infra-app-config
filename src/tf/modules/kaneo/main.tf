@@ -3,6 +3,8 @@ locals {
   app_secret_version = 1
 }
 
+data "aws_caller_identity" "current" {}
+
 ephemeral "random_password" "auth" {
   length  = 64
   special = false

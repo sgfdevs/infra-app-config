@@ -5,8 +5,6 @@ locals {
   k3s_workload_role_name = "sgfdevs-k3s-kaneo"
 }
 
-data "aws_caller_identity" "current" {}
-
 resource "aws_s3_bucket" "assets" {
   bucket = local.s3_bucket_name
 
