@@ -6,10 +6,10 @@ data "aws_caller_identity" "current" {}
 
 resource "aws_iam_user" "good_dads_staging_ses" {
   name = "good-dads-staging-ses-smtp"
-  path = "/applications/good-dads/"
+  path = "/applications/good-dads-enrollment-bot/"
 
   tags = {
-    Application    = "sgf.dev"
+    Application    = "good-dads-enrollment-bot"
     Environment    = "staging"
     ManagedBy      = "OpenTofu"
     SESFromAddress = "staging-gooddads-enrollment-bot@sgf.dev"
