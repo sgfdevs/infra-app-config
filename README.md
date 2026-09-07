@@ -22,6 +22,17 @@ make tf-apply
 make tf-output
 ```
 
+## Hack4Good production
+
+The `hack4goodsgf` module manages separate staging and production credentials.
+Production sends through the existing `sgf.dev` SES identity as `hack4good@sgf.dev`.
+It stores SMTP and generated WordPress admin credentials at
+`applications/hack4goodsgf/production/ses` and
+`applications/hack4goodsgf/production/wordpress-admin`.
+The `hack4goodsgf-production` Kubernetes auth role grants read access to these two
+paths only, using `hack4goodsgf-secrets` in `hack4goodsgf-com-production`.
+No additional Terraform inputs or CI secrets are required.
+
 ## Operating constraints
 - Apply only after the services configured by this stack are initialized and reachable.
 - Use `.envrc.example` as the authoritative list of required local credentials. Never commit `.envrc` or secret payloads.
