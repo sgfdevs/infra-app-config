@@ -82,7 +82,7 @@ resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_dropbox" {
   data_json_wo_version = local.staging_dropbox_secret_version
 }
 
-resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_oauth" {
+resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_dropbox_oauth" {
   mount        = var.applications_mount_path
   name         = "gooddads-enrollment-bot/staging/oauth"
   disable_read = true
