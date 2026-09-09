@@ -82,13 +82,18 @@ resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_dropbox" {
   data_json_wo_version = local.staging_dropbox_secret_version
 }
 
+ephemeral "random_password" "gooddads_enrollment_bot_staging_dropbox_oauth" {
+  length  = 32
+  special = false
+}
+
 resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_dropbox_oauth" {
   mount        = var.applications_mount_path
   name         = "gooddads-enrollment-bot/staging/oauth"
   disable_read = true
   data_json_wo = jsonencode({
-    dropboxOauthBasicUser     = "CHANGEME"
-    dropboxOauthBasicPassword = "CHANGEME"
+    dropboxOauthBasicUser     = "dropbox-admin"
+    dropboxOauthBasicPassword = ephemeral.random_password.gooddads_enrollment_bot_staging_dropbox_oauth.result
   })
   data_json_wo_version = local.staging_oauth_secret_version
 }
