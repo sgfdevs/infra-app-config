@@ -116,31 +116,7 @@ resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_notifications" {
 resource "vault_policy" "gooddads_enrollment_bot_staging" {
   name   = "gooddads-enrollment-bot-staging"
   policy = <<-EOT
-    path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/laravel" {
-      capabilities = ["read"]
-    }
-
-    path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/neon" {
-      capabilities = ["read"]
-    }
-
-    path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/dropbox" {
-      capabilities = ["read"]
-    }
-
-    path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/oauth" {
-      capabilities = ["read"]
-    }
-
-    path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/sentry" {
-      capabilities = ["read"]
-    }
-
-    path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/notifications" {
-      capabilities = ["read"]
-    }
-
-    path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/ses" {
+    path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/*" {
       capabilities = ["read"]
     }
   EOT
