@@ -2,9 +2,46 @@ locals {
   sgf_dev_ses_policy_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/applications/sgf-dev/SgfDevSESSender"
 
   application_secret_versions = {
-    # Keep unchanged after manual fill; incrementing resets every application value to CHANGEME.
-    gooddads_enrollment_bot_staging_application = 1
-    gooddads_enrollment_bot_staging_ses         = 1
+    # Keep fixed: incrementing rotates the key used to encrypt Dropbox tokens and queued jobs.
+    gooddads_enrollment_bot_staging_laravel = 1
+    gooddads_enrollment_bot_staging_ses     = 1
+  }
+
+  # Each version is independent. Incrementing rewrites only that document with CHANGEME.
+  staging_placeholder_secrets = {
+    neon = {
+      version = 1
+      data = {
+        neonBaseUrl = "CHANGEME"
+        neonApiKey  = "CHANGEME"
+      }
+    }
+    dropbox = {
+      version = 1
+      data = {
+        dropboxAppKey    = "CHANGEME"
+        dropboxAppSecret = "CHANGEME"
+      }
+    }
+    oauth = {
+      version = 1
+      data = {
+        dropboxOauthBasicUser     = "CHANGEME"
+        dropboxOauthBasicPassword = "CHANGEME"
+      }
+    }
+    sentry = {
+      version = 1
+      data = {
+        sentryDsn = "CHANGEME"
+      }
+    }
+    notifications = {
+      version = 1
+      data = {
+        mailIntakeFormRecipient = "CHANGEME"
+      }
+    }
   }
 }
 
@@ -43,34 +80,38 @@ resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_ses" {
   data_json_wo_version = local.application_secret_versions.gooddads_enrollment_bot_staging_ses
 }
 
-resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_application" {
+ephemeral "random_bytes" "gooddads_enrollment_bot_staging_app_key" {
+  length = 32
+}
+
+resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_laravel" {
   mount        = var.applications_mount_path
-  name         = "gooddads-enrollment-bot/staging/application"
+  name         = "gooddads-enrollment-bot/staging/laravel"
   disable_read = true
   data_json_wo = jsonencode({
-    appKey                    = "CHANGEME"
-    neonBaseUrl               = "CHANGEME"
-    neonApiKey                = "CHANGEME"
-    dropboxAppKey             = "CHANGEME"
-    dropboxAppSecret          = "CHANGEME"
-    dropboxOauthBasicUser     = "CHANGEME"
-    dropboxOauthBasicPassword = "CHANGEME"
-    sentryDsn                 = "CHANGEME"
-    mailIntakeFormRecipient   = "CHANGEME"
+    appKey = "base64:${ephemeral.random_bytes.gooddads_enrollment_bot_staging_app_key.base64}"
   })
-  data_json_wo_version = local.application_secret_versions.gooddads_enrollment_bot_staging_application
+  data_json_wo_version = local.application_secret_versions.gooddads_enrollment_bot_staging_laravel
+}
+
+resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_integrations" {
+  for_each = local.staging_placeholder_secrets
+
+  mount                = var.applications_mount_path
+  name                 = "gooddads-enrollment-bot/staging/${each.key}"
+  disable_read         = true
+  data_json_wo         = jsonencode(each.value.data)
+  data_json_wo_version = each.value.version
 }
 
 resource "vault_policy" "gooddads_enrollment_bot_staging" {
   name   = "gooddads-enrollment-bot-staging"
   policy = <<-EOT
-    path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/application" {
+    %{for secret in concat(["laravel"], keys(local.staging_placeholder_secrets), ["ses"])~}
+    path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/${secret}" {
       capabilities = ["read"]
     }
-
-    path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/ses" {
-      capabilities = ["read"]
-    }
+    %{endfor~}
   EOT
 }
 
