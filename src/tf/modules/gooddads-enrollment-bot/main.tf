@@ -2,7 +2,9 @@ locals {
   sgf_dev_ses_policy_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/applications/sgf-dev/SgfDevSESSender"
 
   application_secret_versions = {
-    gooddads_enrollment_bot_staging_ses = 1
+    # Keep unchanged after manual fill; incrementing resets every application value to CHANGEME.
+    gooddads_enrollment_bot_staging_application = 1
+    gooddads_enrollment_bot_staging_ses         = 1
   }
 }
 
@@ -41,9 +43,31 @@ resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_ses" {
   data_json_wo_version = local.application_secret_versions.gooddads_enrollment_bot_staging_ses
 }
 
+resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_application" {
+  mount        = var.applications_mount_path
+  name         = "gooddads-enrollment-bot/staging/application"
+  disable_read = true
+  data_json_wo = jsonencode({
+    appKey                    = "CHANGEME"
+    neonBaseUrl               = "CHANGEME"
+    neonApiKey                = "CHANGEME"
+    dropboxAppKey             = "CHANGEME"
+    dropboxAppSecret          = "CHANGEME"
+    dropboxOauthBasicUser     = "CHANGEME"
+    dropboxOauthBasicPassword = "CHANGEME"
+    sentryDsn                 = "CHANGEME"
+    mailIntakeFormRecipient   = "CHANGEME"
+  })
+  data_json_wo_version = local.application_secret_versions.gooddads_enrollment_bot_staging_application
+}
+
 resource "vault_policy" "gooddads_enrollment_bot_staging" {
   name   = "gooddads-enrollment-bot-staging"
   policy = <<-EOT
+    path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/application" {
+      capabilities = ["read"]
+    }
+
     path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/ses" {
       capabilities = ["read"]
     }
