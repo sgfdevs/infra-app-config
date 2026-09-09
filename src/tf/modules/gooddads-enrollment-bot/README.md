@@ -32,12 +32,12 @@ MySQL, encrypted using `APP_KEY`; they are not placeholders in OpenBao.
 The ephemeral `random_bytes` resource uses a cryptographic random generator to produce
 32 bytes. The Laravel document receives `base64:<base64-encoded bytes>` through
 `data_json_wo`. The ephemeral bytes and write-only payload are not persisted in the
-OpenTofu plan or state. Random provider 3.9.0 or newer is required and is already locked
-by this repository.
+OpenTofu plan or state. The module relies on implicit Random provider resolution and
+the repository's existing lockfile.
 
 Ephemeral generation can run again during later plans/applies, but the Vault resource
 only writes a new payload on creation or when its write-only version counter changes.
-Keep `application_secret_versions.gooddads_enrollment_bot_staging_laravel` at `1`.
+Keep `staging_laravel_secret_version` at `1`.
 An unchanged counter keeps the stored key stable during ordinary applies; generating
 an ephemeral candidate does not itself rotate the OpenBao secret.
 
@@ -65,8 +65,8 @@ Do not put real values in Git, Terraform variables, command history, or logs.
 ## Write-only version safety
 
 All documents use `disable_read = true` and `data_json_wo`, so OpenTofu does not read
-manually filled values back into state. Keep each entry's `version` in
-`staging_placeholder_secrets` unchanged after manual setup. Incrementing it overwrites
+manually filled values back into state. Each resource uses its own explicit
+`staging_*_secret_version` local. Keep these unchanged after manual setup. Incrementing one overwrites
 only that integration's document with `CHANGEME`; other documents and the Laravel key
 are unaffected. Resource recreation also writes placeholders again. A write-only
 payload change alone does not trigger an update, so adding a property requires a
