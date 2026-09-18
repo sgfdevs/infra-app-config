@@ -1,5 +1,5 @@
 locals {
-  application_url    = "https://crm-preview.sgf.dev"
+  application_url    = "https://crm.sgf.dev"
   app_secret_version = 1
 }
 
@@ -10,20 +10,12 @@ ephemeral "random_password" "app" {
   special = false
 }
 
-ephemeral "random_password" "preview" {
-  length  = 32
-  special = false
-}
-
 resource "vault_kv_secret_v2" "app" {
   mount        = var.applications_mount_path
   name         = "twenty/app"
   disable_read = true
   data_json_wo = jsonencode({
-    appSecret       = ephemeral.random_password.app.result
-    previewUsername = "preview"
-    previewPassword = ephemeral.random_password.preview.result
-    previewHtpasswd = "preview:${bcrypt(ephemeral.random_password.preview.result)}"
+    appSecret = ephemeral.random_password.app.result
   })
   data_json_wo_version = local.app_secret_version
 }

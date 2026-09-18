@@ -13,7 +13,7 @@ resource "aws_s3_bucket" "assets" {
 
   tags = {
     Application = "Twenty"
-    Environment = "preview"
+    Environment = "production"
     ManagedBy   = "OpenTofu"
   }
 }

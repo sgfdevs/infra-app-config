@@ -1,5 +1,5 @@
 locals {
-  ses_sender         = "crm-preview@sgf.dev"
+  ses_sender         = "crm@sgf.dev"
   ses_policy_arn     = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/applications/sgf-dev/SgfDevSESSender"
   ses_secret_version = 1
 }
@@ -11,7 +11,7 @@ resource "aws_iam_user" "ses" {
 
   tags = {
     Application    = "Twenty"
-    Environment    = "preview"
+    Environment    = "production"
     ManagedBy      = "OpenTofu"
     SESFromAddress = local.ses_sender
   }
