@@ -1,5 +1,5 @@
 locals {
-  secret_key_version   = 1
+  secret_key_version   = 2
   utils_secret_version = 1
 }
 
@@ -13,7 +13,7 @@ resource "vault_kv_secret_v2" "secret_key" {
   name         = "outline/sgfdevs/secret-key"
   disable_read = true
   data_json_wo = jsonencode({
-    secretKey = ephemeral.random_password.secret_key.result
+    secretKey = sha256(ephemeral.random_password.secret_key.result)
   })
   data_json_wo_version = local.secret_key_version
 }
