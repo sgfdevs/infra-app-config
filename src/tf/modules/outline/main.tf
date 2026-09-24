@@ -16,9 +16,6 @@ locals {
 
 data "aws_caller_identity" "current" {}
 
-# Existing SECRET_KEY and UTILS_SECRET belong in outline/<instance>/app as
-# secretKey and utilsSecret. Import them from the source instance; never rotate
-# or generate replacements as part of the migration.
 resource "vault_policy" "secrets" {
   for_each = local.instances
 
