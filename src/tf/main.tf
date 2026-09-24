@@ -45,8 +45,15 @@ module "twenty" {
   kubernetes_auth_backend_path = module.openbao.kubernetes_auth_backend_path
 }
 
-module "outline" {
-  source = "./modules/outline"
+module "outline_sgfdevs" {
+  source = "./modules/outline-sgfdevs"
+
+  applications_mount_path      = module.openbao.applications_mount_path
+  kubernetes_auth_backend_path = module.openbao.kubernetes_auth_backend_path
+}
+
+module "outline_opensgf" {
+  source = "./modules/outline-opensgf"
 
   applications_mount_path      = module.openbao.applications_mount_path
   kubernetes_auth_backend_path = module.openbao.kubernetes_auth_backend_path

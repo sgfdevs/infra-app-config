@@ -1,25 +1,11 @@
 locals {
-  instances = {
-    sgfdevs = {
-      url    = "https://docs.sgf.dev"
-      bucket = "sgfdevs-outline-assets"
-      sender = "outline@sgf.dev"
-    }
-    opensgf = {
-      url    = "https://docs.opensgf.org"
-      bucket = "opensgf-outline-assets"
-      sender = "opensgf-outline@sgf.dev"
-    }
-  }
   k3s_oidc_issuer = "k8s-oidc.sgf.dev"
 }
 
 data "aws_caller_identity" "current" {}
 
 resource "vault_policy" "secrets" {
-  for_each = local.instances
-
-  name   = "outline-${each.key}-secrets"
+  name   = "outline-opensgf-secrets"
   policy = <<-EOT
     path "auth/token/lookup-self" {
       capabilities = ["read"]
@@ -29,21 +15,19 @@ resource "vault_policy" "secrets" {
       capabilities = ["update"]
     }
 
-    path "${var.applications_mount_path}/data/outline/${each.key}/*" {
+    path "${var.applications_mount_path}/data/outline/opensgf/*" {
       capabilities = ["read"]
     }
   EOT
 }
 
 resource "vault_kubernetes_auth_backend_role" "secrets" {
-  for_each = local.instances
-
   backend                          = var.kubernetes_auth_backend_path
-  role_name                        = "outline-${each.key}-secrets"
+  role_name                        = "outline-opensgf-secrets"
   bound_service_account_names      = ["outline-secrets"]
-  bound_service_account_namespaces = ["outline-${each.key}"]
+  bound_service_account_namespaces = ["outline-opensgf"]
   audience                         = "vault"
-  token_policies                   = [vault_policy.secrets[each.key].name]
+  token_policies                   = [vault_policy.secrets.name]
   token_no_default_policy          = true
   token_ttl                        = 900
   token_max_ttl                    = 900
