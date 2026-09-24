@@ -6,5 +6,8 @@ terraform {
     vault = {
       source = "hashicorp/vault"
     }
+    random = {
+      source = "hashicorp/random"
+    }
   }
 }
