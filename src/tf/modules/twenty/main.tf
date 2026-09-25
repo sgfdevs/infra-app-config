@@ -1,6 +1,7 @@
 locals {
-  application_url    = "https://crm.sgf.dev"
-  app_secret_version = 1
+  application_url       = "https://crm.sgf.dev"
+  app_secret_version    = 1
+  backup_secret_version = 1
 }
 
 data "aws_caller_identity" "current" {}
@@ -18,6 +19,24 @@ resource "vault_kv_secret_v2" "app" {
     appSecret = ephemeral.random_password.app.result
   })
   data_json_wo_version = local.app_secret_version
+}
+
+ephemeral "random_password" "restic" {
+  length  = 40
+  special = false
+}
+
+resource "vault_kv_secret_v2" "backup" {
+  mount        = var.applications_mount_path
+  name         = "twenty/backup"
+  disable_read = true
+  data_json_wo = jsonencode({
+    resticPassword = ephemeral.random_password.restic.result
+  })
+  data_json_wo_version = local.backup_secret_version
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "vault_policy" "secrets" {
