@@ -1,5 +1,5 @@
 resource "aws_sesv2_configuration_set" "listmonk" {
-  configuration_set_name = "listmonk"
+  configuration_set_name = "application-sgf-dev-listmonk"
 
   reputation_options {
     reputation_metrics_enabled = true
