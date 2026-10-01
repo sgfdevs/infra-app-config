@@ -2,8 +2,6 @@ locals {
   secret_version = 1
 }
 
-# Keep these values stable across deployments. Rotating them invalidates sessions
-# and can make stored TOTP secrets or the backup repository unreadable.
 ephemeral "random_password" "secret_key_base" {
   length  = 86
   special = false
