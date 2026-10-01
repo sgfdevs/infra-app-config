@@ -5,6 +5,14 @@ resource "vault_policy" "sgf_dev_production" {
       capabilities = ["read"]
     }
 
+    path "${var.applications_mount_path}/data/sgf-dev/production/meetup" {
+      capabilities = ["read"]
+    }
+
+    path "${var.applications_mount_path}/data/sgf-dev/production/sentry" {
+      capabilities = ["read"]
+    }
+
     path "${var.applications_mount_path}/data/sgf-dev/production/ses" {
       capabilities = ["read"]
     }

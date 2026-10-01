@@ -5,6 +5,14 @@ resource "vault_policy" "sgf_dev_staging" {
       capabilities = ["read"]
     }
 
+    path "${var.applications_mount_path}/data/sgf-dev/staging/meetup" {
+      capabilities = ["read"]
+    }
+
+    path "${var.applications_mount_path}/data/sgf-dev/staging/sentry" {
+      capabilities = ["read"]
+    }
+
     path "${var.applications_mount_path}/data/sgf-dev/staging/ses" {
       capabilities = ["read"]
     }
