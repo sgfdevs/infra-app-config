@@ -1,10 +1,6 @@
 resource "vault_policy" "sgf_dev_staging" {
   name   = "sgf-dev-staging"
   policy = <<-EOT
-    path "${var.applications_mount_path}/data/sgf-dev/staging/application" {
-      capabilities = ["read"]
-    }
-
     path "${var.applications_mount_path}/data/sgf-dev/staging/meetup" {
       capabilities = ["read"]
     }
@@ -21,19 +17,6 @@ resource "vault_policy" "sgf_dev_staging" {
       capabilities = ["read"]
     }
   EOT
-}
-
-resource "vault_kv_secret_v2" "sgf_dev_staging_application" {
-  mount        = var.applications_mount_path
-  name         = "sgf-dev/staging/application"
-  disable_read = true
-  data_json_wo = jsonencode({
-    azureBlobStorageKey   = "CHANGEME"
-    meetupApiClientSecret = "CHANGEME"
-    sentryDsn             = "CHANGEME"
-  })
-  data_json_wo_version = local.application_secret_versions.sgf_dev_staging_application
-  delete_all_versions  = true
 }
 
 ephemeral "random_password" "sgf_dev_staging_restic" {
