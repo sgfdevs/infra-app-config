@@ -33,6 +33,7 @@ resource "vault_kv_secret_v2" "sgf_dev_staging_application" {
     sentryDsn             = "CHANGEME"
   })
   data_json_wo_version = local.application_secret_versions.sgf_dev_staging_application
+  delete_all_versions  = true
 }
 
 ephemeral "random_password" "sgf_dev_staging_restic" {
