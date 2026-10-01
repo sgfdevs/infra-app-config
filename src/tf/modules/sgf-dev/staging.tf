@@ -20,7 +20,6 @@ resource "vault_kv_secret_v2" "sgf_dev_staging_application" {
   name         = "sgf-dev/staging/application"
   disable_read = true
   data_json_wo = jsonencode({
-    azureBlobStorageKey   = "CHANGEME"
     meetupApiClientSecret = "CHANGEME"
     sentryDsn             = "CHANGEME"
   })
