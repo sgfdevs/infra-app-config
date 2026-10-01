@@ -5,6 +5,14 @@ resource "vault_policy" "sgf_dev_staging" {
       capabilities = ["read"]
     }
 
+    path "${var.applications_mount_path}/data/sgf-dev/staging/meetup" {
+      capabilities = ["read"]
+    }
+
+    path "${var.applications_mount_path}/data/sgf-dev/staging/sentry" {
+      capabilities = ["read"]
+    }
+
     path "${var.applications_mount_path}/data/sgf-dev/staging/ses" {
       capabilities = ["read"]
     }
@@ -20,6 +28,7 @@ resource "vault_kv_secret_v2" "sgf_dev_staging_application" {
   name         = "sgf-dev/staging/application"
   disable_read = true
   data_json_wo = jsonencode({
+    azureBlobStorageKey   = "CHANGEME"
     meetupApiClientSecret = "CHANGEME"
     sentryDsn             = "CHANGEME"
   })
