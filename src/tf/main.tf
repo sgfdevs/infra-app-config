@@ -66,6 +66,13 @@ module "listmonk" {
   kubernetes_auth_backend_path = module.openbao.kubernetes_auth_backend_path
 }
 
+module "plausible" {
+  source = "./modules/plausible"
+
+  applications_mount_path      = module.openbao.applications_mount_path
+  kubernetes_auth_backend_path = module.openbao.kubernetes_auth_backend_path
+}
+
 module "zitadel" {
   source = "./modules/zitadel"
 }
