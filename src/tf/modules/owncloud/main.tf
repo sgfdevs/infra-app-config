@@ -1,7 +1,5 @@
 locals {
-  # Private bootstrap only. Change this together with the Kubernetes URLs when
-  # public ingress is introduced, and remove the localhost redirect URIs.
-  application_url    = "http://localhost:9200"
+  application_url    = "https://cloud.sgf.dev"
   app_secret_version = 1
 }
 

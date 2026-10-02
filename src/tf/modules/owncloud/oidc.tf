@@ -45,7 +45,7 @@ resource "zitadel_application_oidc" "web" {
   id_token_userinfo_assertion  = true
   additional_origins           = [local.application_url]
   version                      = "OIDC_VERSION_1_0"
-  dev_mode                     = true
+  dev_mode                     = false
   skip_native_app_success_page = false
 }
 
