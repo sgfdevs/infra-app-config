@@ -1,5 +1,8 @@
 locals {
-  secret_version = 1
+  secret_key_base_version     = 1
+  totp_vault_key_version      = 1
+  clickhouse_password_version = 1
+  restic_password_version     = 1
 }
 
 ephemeral "random_password" "secret_key_base" {
@@ -22,16 +25,40 @@ ephemeral "random_password" "restic" {
   special = false
 }
 
-resource "vault_kv_secret_v2" "app" {
+resource "vault_kv_secret_v2" "secret_key_base" {
   mount        = var.applications_mount_path
-  name         = "plausible/app"
+  name         = "plausible/secret-key-base"
   disable_read = true
   data_json_wo = jsonencode({
-    secretKeyBase      = ephemeral.random_password.secret_key_base.result
-    totpVaultKey       = base64encode(ephemeral.random_password.totp.result)
+    secretKeyBase = ephemeral.random_password.secret_key_base.result
+  })
+  data_json_wo_version = local.secret_key_base_version
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "vault_kv_secret_v2" "totp_vault_key" {
+  mount        = var.applications_mount_path
+  name         = "plausible/totp-vault-key"
+  disable_read = true
+  data_json_wo = jsonencode({
+    totpVaultKey = base64encode(ephemeral.random_password.totp.result)
+  })
+  data_json_wo_version = local.totp_vault_key_version
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "vault_kv_secret_v2" "clickhouse_password" {
+  mount        = var.applications_mount_path
+  name         = "plausible/clickhouse-password"
+  disable_read = true
+  data_json_wo = jsonencode({
     clickhousePassword = ephemeral.random_password.clickhouse.result
   })
-  data_json_wo_version = local.secret_version
+  data_json_wo_version = local.clickhouse_password_version
   lifecycle {
     prevent_destroy = true
   }
@@ -44,7 +71,7 @@ resource "vault_kv_secret_v2" "backup" {
   data_json_wo = jsonencode({
     resticPassword = ephemeral.random_password.restic.result
   })
-  data_json_wo_version = local.secret_version
+  data_json_wo_version = local.restic_password_version
   lifecycle {
     prevent_destroy = true
   }

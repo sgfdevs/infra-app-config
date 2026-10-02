@@ -1,3 +1,7 @@
+locals {
+  ses_secret_version = 1
+}
+
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
@@ -34,5 +38,5 @@ resource "vault_kv_secret_v2" "ses" {
     port        = 587
     fromAddress = aws_iam_user.ses.tags["SESFromAddress"]
   })
-  data_json_wo_version = local.secret_version
+  data_json_wo_version = local.ses_secret_version
 }
