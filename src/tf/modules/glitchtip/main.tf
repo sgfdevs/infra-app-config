@@ -1,7 +1,5 @@
 locals {
-  # Keep in sync with the private Kubernetes bootstrap URL.
-  application_url = "http://localhost:8000"
-  secret_version  = 1
+  secret_version = 1
 }
 
 ephemeral "random_password" "secret_key" {

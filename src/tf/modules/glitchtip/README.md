@@ -1,15 +1,15 @@
 # GlitchTip configuration
 
 Creates the application SECRET_KEY, Restic password, SES SMTP credentials,
-scoped OpenBao read policy, and a Zitadel public web client using authorization
-code flow with PKCE. Credentials are written through write-only secret fields.
+and scoped OpenBao read policy. Credentials are written through write-only
+secret fields.
 
-The private URL is http://localhost:8000. Keep it synchronized with the Kubernetes
-configuration and callback at /accounts/oidc/zitadel/login/callback/. Development
-mode exists only to permit the localhost HTTP callback.
-
-Grant the GlitchTip project's access role to intended users. The first authorized
-SSO login owns the SGF Devs organization; later users join as members.
+Dex client registration and GlitchTip OIDC configuration live in infra-k8s-apps.
+The private URL is http://localhost:8000, with the callback at
+/accounts/oidc/dex/login/callback/. The public client uses S256 PKCE without a
+client secret. Dex's existing GitHub connector controls who can sign in.
+The first authorized SSO login owns the SGF Devs organization; later users join
+as members.
 
 Application and backup keys are protected against destruction. Increment
 secret_version only for an intentional rotation, and retain old keys alongside
