@@ -1,0 +1,25 @@
+function owncloudRoles(ctx, api) {
+  // Token triggers are organization-wide. Leave every other client untouched.
+  if (ctx.v1.application.getClientId() !== "${client_id}") {
+    return;
+  }
+
+  var grants = ctx.v1.user.grants.grants || [];
+  var roles = [];
+  for (var i = 0; i < grants.length; i++) {
+    var grant = grants[i];
+    if (grant.projectId === "${project_id}" && grant.state === 1) {
+      roles = roles.concat(grant.roles || []);
+    }
+  }
+
+  // oCIS has one effective role. Admin takes precedence, and no grant must not
+  // become an implicit user role. Group synchronization is intentionally absent.
+  var owncloudRoles = [];
+  if (roles.indexOf("admin") !== -1) {
+    owncloudRoles = ["admin"];
+  } else if (roles.indexOf("access") !== -1) {
+    owncloudRoles = ["user"];
+  }
+  api.v1.claims.setClaim("owncloud_roles", owncloudRoles);
+}
