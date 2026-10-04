@@ -1,10 +1,9 @@
 locals {
-  bootstrap_secret_version = 1
+  machine_secret_version = 1
 
-  # Initial credentials are provisioned. Keep generation disabled to avoid
-  # rotating the secret during ordinary plans and applies.
-  bootstrap_client_secret        = false
-  rotate_bootstrap_client_secret = false
+  # Set this to false after the first apply creates and stores the client secret.
+  bootstrap_machine_client_secret = false
+  rotate_machine_client_secret    = false
 }
 
 resource "zitadel_machine_user" "bootstrap" {
@@ -13,9 +12,7 @@ resource "zitadel_machine_user" "bootstrap" {
   name              = "ownCloud bootstrap"
   description       = "Provision ownCloud groups, spaces, and group access"
   access_token_type = "ACCESS_TOKEN_TYPE_JWT"
-
-  # Never generate credentials on the managed resource: they would enter state.
-  with_secret = false
+  with_secret       = false
 }
 
 resource "zitadel_user_grant" "bootstrap" {
@@ -26,12 +23,10 @@ resource "zitadel_user_grant" "bootstrap" {
 }
 
 ephemeral "zitadel_machine_user_client_secret" "bootstrap" {
-  count = local.bootstrap_client_secret || local.rotate_bootstrap_client_secret ? 1 : 0
+  count = local.bootstrap_machine_client_secret || local.rotate_machine_client_secret ? 1 : 0
 
   org_id  = one(data.zitadel_organizations.default.ids)
   user_id = zitadel_machine_user.bootstrap.id
-
-  depends_on = [zitadel_user_grant.bootstrap]
 }
 
 resource "vault_kv_secret_v2" "bootstrap" {
@@ -44,7 +39,5 @@ resource "vault_kv_secret_v2" "bootstrap" {
     projectId    = zitadel_project.owncloud.id
     tokenUrl     = "https://${var.zitadel_domain}/oauth/v2/token"
   })
-  data_json_wo_version = local.bootstrap_secret_version
-
-  depends_on = [zitadel_user_grant.bootstrap]
+  data_json_wo_version = local.machine_secret_version
 }
