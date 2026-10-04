@@ -1,9 +1,9 @@
 locals {
   bootstrap_secret_version = 1
 
-  # Set false immediately after the first successful credential-generating apply,
-  # before another plan. Evaluating the ephemeral resource rotates the secret.
-  bootstrap_client_secret        = true
+  # Initial credentials are provisioned. Keep generation disabled to avoid
+  # rotating the secret during ordinary plans and applies.
+  bootstrap_client_secret        = false
   rotate_bootstrap_client_secret = false
 }
 
