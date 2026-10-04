@@ -39,9 +39,9 @@ run "bootstrap_identity" {
       zitadel_machine_user.bootstrap.org_id == "test-org" &&
       zitadel_machine_user.bootstrap.user_name == "owncloud-bootstrap" &&
       zitadel_machine_user.bootstrap.access_token_type == "ACCESS_TOKEN_TYPE_JWT" &&
-      zitadel_machine_user.bootstrap.with_secret
+      !zitadel_machine_user.bootstrap.with_secret
     )
-    error_message = "Bootstrap must be a JWT machine user with a generated client secret in the application's organization."
+    error_message = "Bootstrap must be a JWT machine user with state-backed credential generation disabled."
   }
 
   assert {
@@ -59,8 +59,10 @@ run "bootstrap_identity" {
       vault_kv_secret_v2.bootstrap.mount == "applications" &&
       vault_kv_secret_v2.bootstrap.name == "owncloud/bootstrap" &&
       vault_kv_secret_v2.bootstrap.disable_read &&
-      vault_kv_secret_v2.bootstrap.data_json_wo_version == 1
+      vault_kv_secret_v2.bootstrap.data_json == null &&
+      vault_kv_secret_v2.bootstrap.data_json_wo == null &&
+      vault_kv_secret_v2.bootstrap.data_json_wo_version == local.bootstrap_secret_version
     )
-    error_message = "Bootstrap credentials must use the dedicated write-only OpenBao secret."
+    error_message = "Bootstrap credentials must use the dedicated write-only OpenBao secret without a state-backed payload."
   }
 }
