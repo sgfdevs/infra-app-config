@@ -20,18 +20,18 @@ resource "aws_s3_bucket" "media" {
 }
 
 resource "aws_s3_bucket_versioning" "media" {
-  for_each = aws_s3_bucket.media
+  for_each = local.methodconf_media_environments
 
-  bucket = each.value.id
+  bucket = aws_s3_bucket.media[each.key].id
   versioning_configuration {
     status = "Enabled"
   }
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "media" {
-  for_each = aws_s3_bucket.media
+  for_each = local.methodconf_media_environments
 
-  bucket = each.value.id
+  bucket = aws_s3_bucket.media[each.key].id
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
@@ -40,9 +40,9 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "media" {
 }
 
 resource "aws_s3_bucket_public_access_block" "media" {
-  for_each = aws_s3_bucket.media
+  for_each = local.methodconf_media_environments
 
-  bucket                  = each.value.id
+  bucket                  = aws_s3_bucket.media[each.key].id
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
@@ -50,18 +50,18 @@ resource "aws_s3_bucket_public_access_block" "media" {
 }
 
 resource "aws_s3_bucket_ownership_controls" "media" {
-  for_each = aws_s3_bucket.media
+  for_each = local.methodconf_media_environments
 
-  bucket = each.value.id
+  bucket = aws_s3_bucket.media[each.key].id
   rule {
     object_ownership = "BucketOwnerEnforced"
   }
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "media" {
-  for_each = aws_s3_bucket.media
+  for_each = local.methodconf_media_environments
 
-  bucket = each.value.id
+  bucket = aws_s3_bucket.media[each.key].id
   rule {
     id     = "ExpireMediaCache"
     status = "Enabled"
@@ -80,15 +80,15 @@ resource "aws_s3_bucket_lifecycle_configuration" "media" {
 }
 
 data "aws_iam_policy_document" "media" {
-  for_each = aws_s3_bucket.media
+  for_each = local.methodconf_media_environments
 
   statement {
     sid     = "DenyInsecureTransport"
     effect  = "Deny"
     actions = ["s3:*"]
     resources = [
-      each.value.arn,
-      "${each.value.arn}/*",
+      aws_s3_bucket.media[each.key].arn,
+      "${aws_s3_bucket.media[each.key].arn}/*",
     ]
     principals {
       type        = "*"
@@ -103,14 +103,14 @@ data "aws_iam_policy_document" "media" {
 }
 
 resource "aws_s3_bucket_policy" "media" {
-  for_each = aws_s3_bucket.media
+  for_each = local.methodconf_media_environments
 
-  bucket = each.value.id
+  bucket = aws_s3_bucket.media[each.key].id
   policy = data.aws_iam_policy_document.media[each.key].json
 }
 
 resource "aws_iam_role" "media" {
-  for_each = aws_s3_bucket.media
+  for_each = local.methodconf_media_environments
 
   name                 = "sgfdevs-k3s-methodconf-${each.key}"
   path                 = "/sgfdevs-k3s/"
@@ -143,7 +143,7 @@ resource "aws_iam_role" "media" {
 }
 
 resource "aws_iam_role_policy" "media" {
-  for_each = aws_s3_bucket.media
+  for_each = local.methodconf_media_environments
 
   name = "ManageMethodConfMedia"
   role = aws_iam_role.media[each.key].id
@@ -153,14 +153,14 @@ resource "aws_iam_role_policy" "media" {
       {
         Effect   = "Allow"
         Action   = ["s3:GetBucketLocation", "s3:ListBucket"]
-        Resource = each.value.arn
+        Resource = aws_s3_bucket.media[each.key].arn
       },
       {
         Effect = "Allow"
         Action = ["s3:DeleteObject", "s3:GetObject", "s3:PutObject"]
         Resource = [
-          "${each.value.arn}/media/*",
-          "${each.value.arn}/cache/*",
+          "${aws_s3_bucket.media[each.key].arn}/media/*",
+          "${aws_s3_bucket.media[each.key].arn}/cache/*",
         ]
       },
     ]
