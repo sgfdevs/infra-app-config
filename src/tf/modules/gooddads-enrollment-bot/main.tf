@@ -2,13 +2,14 @@ locals {
   sgf_dev_ses_policy_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/applications/sgf-dev/SgfDevSESSender"
 
   # Incrementing the Laravel version rotates the encryption key.
-  staging_laravel_secret_version       = 1
-  staging_neon_secret_version          = 1
-  staging_dropbox_secret_version       = 1
-  staging_oauth_secret_version         = 1
-  staging_sentry_secret_version        = 1
-  staging_notifications_secret_version = 1
-  staging_ses_secret_version           = 1
+  staging_laravel_secret_version         = 1
+  staging_participant_pdf_secret_version = 1
+  staging_neon_secret_version            = 1
+  staging_dropbox_secret_version         = 1
+  staging_oauth_secret_version           = 1
+  staging_sentry_secret_version          = 1
+  staging_notifications_secret_version   = 1
+  staging_ses_secret_version             = 1
 }
 
 data "aws_caller_identity" "current" {}
@@ -58,6 +59,20 @@ resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_laravel" {
     appKey = "base64:${ephemeral.random_bytes.gooddads_enrollment_bot_staging_app_key.base64}"
   })
   data_json_wo_version = local.staging_laravel_secret_version
+}
+
+ephemeral "random_bytes" "gooddads_enrollment_bot_staging_pdf_hash_key" {
+  length = 32
+}
+
+resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_participant_pdf" {
+  mount        = var.applications_mount_path
+  name         = "gooddads-enrollment-bot/staging/participant-pdf"
+  disable_read = true
+  data_json_wo = jsonencode({
+    hashKey = ephemeral.random_bytes.gooddads_enrollment_bot_staging_pdf_hash_key.hex
+  })
+  data_json_wo_version = local.staging_participant_pdf_secret_version
 }
 
 resource "vault_kv_secret_v2" "gooddads_enrollment_bot_staging_neon" {
@@ -122,6 +137,10 @@ resource "vault_policy" "gooddads_enrollment_bot_staging" {
   name   = "gooddads-enrollment-bot-staging"
   policy = <<-EOT
     path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/laravel" {
+      capabilities = ["read"]
+    }
+
+    path "${var.applications_mount_path}/data/gooddads-enrollment-bot/staging/participant-pdf" {
       capabilities = ["read"]
     }
 
