@@ -4,11 +4,11 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 6.58"
+      version = "~> 6.73"
     }
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 5.10"
+      version = "~> 5.13"
     }
     zitadel = {
       source  = "zitadel/zitadel"
